@@ -1,42 +1,31 @@
-# jobradar/render.yaml
 services:
+  # ============================================================
+  # BACKEND SERVICE
+  # ============================================================
   - type: web
     name: jobradar-backend
     runtime: docker
-    dockerfilePath: backend/Dockerfile.prod  # Traces down into the backend folder from root
-    dockerContext: backend                 # Executes the build context using the backend folder tree
+    dockerfilePath: backend/Dockerfile.prod
+    dockerContext: backend
     plan: starter
     region: oregon
     envVars:
-      # ============================================================
-      # RUNTIME ENV & CLOUD LOGGING
-      # ============================================================
       - key: DEBUG
         value: "False"
-      - key: LOGTAIL_SOURCE_TOKEN
-        sync: false
-        
-      # ============================================================
-      # AUTHENTICATION & TRACING
-      # ============================================================
       - key: JWT_SECRET
         generateValue: true
       - key: SECRET_KEY
         generateValue: true
       - key: FRONTEND_URL
-        value: https://onrender.com
-
-      # ============================================================
-      # PERSISTENT DATABASE ENGINE
-      # ============================================================
+        value: https://jobradar-frontend.onrender.com
+      
+      # Database
       - key: DATABASE_URL
         fromDatabase:
           name: jobradar-db
           property: connectionString
-
-      # ============================================================
-      # AIVEN REDIS BROKER INFRASTRUCTURE (Managed Remotely)
-      # ============================================================
+      
+      # Aiven Redis (Production)
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PASSWORD
@@ -47,10 +36,40 @@ services:
         value: "default"
       - key: REDIS_SSL
         value: "True"
+      - key: REDIS_SSL_CA_CERT
+        value: "certs/ca.pem"
+      - key: REDIS_SSL_CERT
+        value: "certs/service.cert"
+      - key: REDIS_SSL_KEY
+        value: "certs/service.key"
+      
+      # Redis URL for Celery
+      - key: REDIS_URL
+        sync: false
+      - key: CELERY_BROKER_URL
+        sync: false
+      - key: CELERY_RESULT_BACKEND
+        sync: false
 
-# Managed Production PostgreSQL Engine
+  # ============================================================
+  # FRONTEND SERVICE
+  # ============================================================
+  - type: web
+    name: jobradar-frontend
+    runtime: docker
+    dockerfilePath: frontend/Dockerfile.prod
+    dockerContext: frontend
+    plan: starter
+    region: oregon
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://jobradar-backend.onrender.com
+
+# ============================================================
+# DATABASES
+# ============================================================
 databases:
   - name: jobradar-db
     region: oregon
     plan: starter
-    postgresVersion: "16"
+    # postgresVersion removed - Render uses latest stable version
