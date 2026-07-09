@@ -1,0 +1,268 @@
+# ============================================================
+# JOBRADAR .GITIGNORE - MONOREPO
+# ============================================================
+
+# ============================================================
+# VIRTUAL ENVIRONMENT (CRITICAL)
+# ============================================================
+venv/
+venv_*/
+.venv/
+env/
+.env/
+venv_wsl/
+__pycache__/
+
+# ============================================================
+# BACKEND
+# ============================================================
+
+# Python virtual environment
+backend/venv/
+backend/venv_*/
+backend/.venv/
+backend/env/
+backend/.env/
+backend/venv_wsl/
+
+# Python cache
+backend/__pycache__/
+backend/*/__pycache__/
+backend/*/*/__pycache__/
+backend/*/*/*/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+# Python build artifacts
+backend/build/
+backend/dist/
+backend/*.egg-info/
+backend/*.egg
+backend/pip-log.txt
+backend/pip-delete-this-directory.txt
+
+# Database migrations (keep the migration files, but not the generated ones)
+backend/migrations/__pycache__/
+backend/migrations/*.pyc
+
+# Logs
+backend/logs/
+backend/*.log
+backend/*.log.*
+
+# Environment files
+backend/.env
+backend/.env.local
+backend/.env.*.local
+backend/.flaskenv
+
+# IDEs
+backend/.vscode/
+backend/.idea/
+backend/*.iml
+backend/.DS_Store
+backend/Thumbs.db
+
+# Testing
+backend/.coverage
+backend/htmlcov/
+backend/.pytest_cache/
+backend/.tox/
+backend/.nox/
+backend/coverage.xml
+backend/*.cover
+
+# Package management
+backend/poetry.lock
+backend/pip-wheel-metadata/
+backend/share/python-wheels/
+backend/lib64/
+backend/parts/
+backend/sdist/
+backend/var/
+backend/wheelhouse/
+backend/develop-eggs/
+backend/eggs/
+backend/.eggs/
+
+# SQLite (if used)
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+
+# Docker
+backend/.dockerignore
+
+# Temporary files
+backend/tmp/
+backend/temp/
+backend/*.tmp
+backend/*.swp
+backend/*.swo
+backend/*~
+
+# Certificates (keep ca.pem for deployment, ignore others)
+backend/certs/*.pem
+backend/certs/*.cert
+backend/certs/*.key
+!backend/certs/ca.pem
+
+
+# ============================================================
+# FRONTEND (Next.js)
+# ============================================================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnp/
+frontend/.pnp.js
+frontend/.pnp.*
+frontend/yarn.lock
+frontend/package-lock.json
+frontend/pnpm-lock.yaml
+
+# Build outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/.vercel/
+frontend/.output/
+
+# Next.js
+frontend/.next/
+frontend/.serverless/
+frontend/.serverless_nextjs/
+
+# Environment files
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.env*.local
+
+# IDEs
+frontend/.vscode/
+frontend/.idea/
+frontend/*.iml
+frontend/.DS_Store
+frontend/Thumbs.db
+
+# Testing
+frontend/coverage/
+frontend/.nyc_output/
+frontend/junit.xml
+
+# Logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# TypeScript
+frontend/*.tsbuildinfo
+
+# Temporary files
+frontend/tmp/
+frontend/.temp/
+frontend/*.tmp
+frontend/*.swp
+frontend/*.swo
+
+
+# ============================================================
+# ROOT / SHARED
+# ============================================================
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Docker
+*.pid
+*.pid.lock
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Secrets
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# Certificates (except ca.pem)
+*.pem
+*.key
+*.cert
+!certs/ca.pem
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python (root level)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node (root level)
+node_modules/
+package-lock.json
+yarn.lock
+
+# JWT file (if it's just a test file)
+jwt.js
+test_env.py

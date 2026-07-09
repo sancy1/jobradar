@@ -1,0 +1,49 @@
+# ============================================================
+# PRODUCTION BUILD STAGE (For Render / CI/CD)
+# ============================================================
+FROM python:3.11-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# ============================================================
+# PRODUCTION RUNTIME STAGE 
+# ============================================================
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/home/jobradar/.local/bin:${PATH}"
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -u 1000 jobradar
+
+# Pull clean compiled production site packages from builder context stage
+COPY --from=builder /root/.local /home/jobradar/.local
+COPY . .
+
+# Setup blank placeholder to handle safe system access routes
+RUN mkdir -p /app/logs && chown -R jobradar:jobradar /app
+USER jobradar
+
+# Health check matching Render cloud native lifecycle structures
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+EXPOSE 8000
+
+# Start application overriding automated native server console handler overrides
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "/dev/null"]

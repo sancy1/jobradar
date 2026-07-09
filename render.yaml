@@ -1,0 +1,56 @@
+# jobradar/render.yaml
+services:
+  - type: web
+    name: jobradar-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile.prod  # Traces down into the backend folder from root
+    dockerContext: backend                 # Executes the build context using the backend folder tree
+    plan: starter
+    region: oregon
+    envVars:
+      # ============================================================
+      # RUNTIME ENV & CLOUD LOGGING
+      # ============================================================
+      - key: DEBUG
+        value: "False"
+      - key: LOGTAIL_SOURCE_TOKEN
+        sync: false
+        
+      # ============================================================
+      # AUTHENTICATION & TRACING
+      # ============================================================
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://onrender.com
+
+      # ============================================================
+      # PERSISTENT DATABASE ENGINE
+      # ============================================================
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jobradar-db
+          property: connectionString
+
+      # ============================================================
+      # AIVEN REDIS BROKER INFRASTRUCTURE (Managed Remotely)
+      # ============================================================
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: REDIS_PORT
+        value: "25164"
+      - key: REDIS_USERNAME
+        value: "default"
+      - key: REDIS_SSL
+        value: "True"
+
+# Managed Production PostgreSQL Engine
+databases:
+  - name: jobradar-db
+    region: oregon
+    plan: starter
+    postgresVersion: "16"

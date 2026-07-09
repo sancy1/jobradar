@@ -1,0 +1,57 @@
+# jobradar/backend/docker-compose.yml
+services:
+  postgres:
+    image: postgres:16
+    container_name: jobradar_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jobradar
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: jobradar_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .  # Points to the current folder (jobradar/backend)
+      dockerfile: Dockerfile
+    container_name: jobradar_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/jobradar
+      REDIS_URL: redis://redis:6379/0
+      DEBUG: "True"
+      REDIS_HOST: ${REDIS_HOST:-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      LOGTAIL_SOURCE_TOKEN: ${LOGTAIL_SOURCE_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app  # Maps jobradar/backend straight to the running container app home
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
