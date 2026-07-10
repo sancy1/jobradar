@@ -30,14 +30,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# ✅ FIXED: Removed 'shadow' package to bypass the Debian apt-get error
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user (native useradd works perfectly here out-of-the-box)
-RUN useradd -m -u 1000 jobradar
+# ✅ FIXED: Used absolute system path to reference the user creation command
+RUN /usr/sbin/useradd -m -u 1000 jobradar
 
 # Copy dependencies from builder
 COPY --from=builder --chown=jobradar:jobradar /opt/venv /opt/venv
