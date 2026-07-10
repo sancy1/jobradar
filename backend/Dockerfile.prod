@@ -46,6 +46,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 EXPOSE 8000
 
-# ✅ FORCE Render to use start.py with ENTRYPOINT
-# Render CANNOT override ENTRYPOINT with its own flags
-ENTRYPOINT ["python", "start.py"]
+# ✅ FIX: Use start.sh to bypass Render's command injection
+# Render will execute this script which handles the Python path correctly
+CMD ["./start.sh"]

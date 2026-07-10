@@ -1,7 +1,5 @@
-# jobradar/backend/Dockerfile
-
 # ============================================================
-# BUILD STAGE
+# DEVELOPMENT BUILD STAGE
 # ============================================================
 FROM python:3.11-slim AS builder
 
@@ -55,5 +53,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # Expose target networking interface communication port
 EXPOSE 8000
 
-# Default application execution command bypassing native uvicorn log configuration overrides
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "/dev/null"]
+# ✅ FIX: Development command - uses reload for local development
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
