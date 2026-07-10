@@ -230,8 +230,20 @@ def run_backend(backend_path, debug=True):
     """Run the FastAPI backend server"""
     print_step(f"Starting FastAPI server on http://localhost:8000", "🚀")
     
+    # --------------------------------------------------------
+    # PRODUCTION PATCH: Strip trailing cloud platform flags
+    # --------------------------------------------------------
+    if len(sys.argv) > 1:
+        print_info(f"Stripping platform arguments to prevent runtime errors: {sys.argv[1:]}")
+        sys.argv = [sys.argv[0]] # Hard-clear any trailing flags like --log-config
+    
     python_path = get_venv_python(backend_path)
     
+    # Fallback check: If running inside Docker container without a venv folder layout,
+    # route execution explicitly through the global system interpreter layer.
+    if not python_path.exists():
+        python_path = sys.executable
+
     # Change to backend directory
     os.chdir(backend_path)
     
@@ -260,45 +272,29 @@ def main():
     
     print_info(f"Backend path: {backend_path}")
     
-    # Step 1: Check .env file
+    # Check if we are running in an optimized cloud container environment
+    is_docker = os.path.exists("/.dockerenv") or os.environ.get("PYTHONUNBUFFERED") == "1"
+    
+    if is_docker:
+        print_info("Production environment detected. Skipping structural dev checks.")
+        run_backend(backend_path, debug=False)
+        return
+
+    # Local development steps continue down here...
     print_step("Checking environment configuration...", "🔐")
     if not check_env_file(backend_path):
         print_error("Environment setup failed")
         sys.exit(1)
     
-    # Step 2: Create virtual environment
     if not create_venv_if_missing(backend_path):
         print_error("Virtual environment setup failed")
         sys.exit(1)
     
-    # Step 3: Install dependencies
     if not install_requirements(backend_path):
-        print_error("Dependency installation failed")
+        print_error("Dependencies verification failed")
         sys.exit(1)
-    
-    # Step 4: Install Playwright browsers
-    if not install_playwright_browsers(backend_path):
-        print_info("Playwright browser installation failed - continuing anyway")
-    
-    # Step 5: Download NLTK data
-    if not download_nltk_data(backend_path):
-        print_info("NLTK data download failed - continuing anyway")
-    
-    # Step 6: Check ports
-    print_step("Checking available ports...", "🔌")
-    if not check_ports():
-        print_error("Port 8000 is not available")
-        print_info("Please free up port 8000 for the backend server")
-        sys.exit(1)
-    
-    # Step 7: Run the server
-    print_success("All setup complete! Starting server...")
-    print_info("Press Ctrl+C to stop the server")
-    print_info("API documentation will be available at http://localhost:8000/docs")
-    print("")
-    
+        
     run_backend(backend_path, debug=True)
-
 
 if __name__ == "__main__":
     main()
