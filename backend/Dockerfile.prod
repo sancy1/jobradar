@@ -8,10 +8,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Install to /opt/venv instead of /root/.local to avoid permission issues
+ENV PIP_NO_INPUT=1 \
+    PIP_NO_WARN_SCRIPT_LOCATION=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /build
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir --target=/opt/venv -r requirements.txt
 
 # ============================================================
 # PRODUCTION RUNTIME STAGE 
@@ -20,8 +25,8 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH="/home/jobradar/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    PYTHONPATH="/app:$PYTHONPATH"
+    PYTHONPATH="/opt/venv:/app" \
+    PATH="/opt/venv/bin:/usr/local/bin:/usr/bin:/bin"
 
 WORKDIR /app
 
@@ -30,25 +35,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create user first to set up the home directory path layout
+# Create non-root user
 RUN useradd -m -u 1000 jobradar
 
-# Copy installed packages from builder
-COPY --from=builder /root/.local /home/jobradar/.local
-COPY . .
+# Copy dependencies from builder
+COPY --from=builder --chown=jobradar:jobradar /opt/venv /opt/venv
 
-# Setup logs directory and make start.sh executable
-RUN mkdir -p /app/logs && \
-    chmod +x /app/start.sh && \
-    chown -R jobradar:jobradar /app /home/jobradar/.local
+# Copy application code
+COPY --chown=jobradar:jobradar . .
+
+# Create logs directory
+RUN mkdir -p /app/logs && chown -R jobradar:jobradar /app
 
 USER jobradar
 
-# Health check matching Render cloud native lifecycle structures
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 EXPOSE 8000
 
-# Run uvicorn directly without shell script to avoid PATH issues
+# Run uvicorn directly
 CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]

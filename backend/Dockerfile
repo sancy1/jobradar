@@ -9,11 +9,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+ENV PIP_NO_INPUT=1 \
+    PIP_NO_WARN_SCRIPT_LOCATION=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /build
 
 # Copy requirements first for optimized Docker layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir --target=/opt/venv -r requirements.txt
 
 # ============================================================
 # RUNTIME STAGE
@@ -23,8 +27,8 @@ FROM python:3.11-slim
 # Prevent Python from writing .pyc files and force unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH="/home/jobradar/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    PYTHONPATH="/app:$PYTHONPATH"
+    PYTHONPATH="/opt/venv:/app" \
+    PATH="/opt/venv/bin:/usr/local/bin:/usr/bin:/bin"
 
 WORKDIR /app
 
@@ -37,16 +41,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Securely provision non-root service runtime user account
 RUN useradd -m -u 1000 jobradar
 
-# Copy installed site-packages layer and binary definitions from builder stage
-COPY --from=builder /root/.local /home/jobradar/.local
+# Copy dependencies from builder with correct ownership
+COPY --from=builder --chown=jobradar:jobradar /opt/venv /opt/venv
 
 # Copy application source file workspace trees into the container
-COPY . .
+COPY --chown=jobradar:jobradar . .
 
-# Provision fallback logs directory, make start.sh executable, and set ownership
-RUN mkdir -p /app/logs && \
-    chmod +x /app/start.sh && \
-    chown -R jobradar:jobradar /app /home/jobradar/.local
+# Provision fallback logs directory and transfer environment ownership privileges cleanly
+RUN mkdir -p /app/logs && chown -R jobradar:jobradar /app
 
 USER jobradar
 
