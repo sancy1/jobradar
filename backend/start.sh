@@ -1,13 +1,17 @@
 #!/bin/bash
-# Production start script for Render
+# Production bootstrap script for Render
 set -e
 
+# Change into the designated container deployment directory
 cd /app
 
-# Run the FastAPI application with uvicorn
-# The app.main module already handles logging configuration via the monkey-patch
-exec python -m uvicorn app.main:app \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --log-level info \
-    --access-log
+# Explicitly ensure paths are exposed to the shell environment
+export PYTHONPATH="/opt/venv:/app:${PYTHONPATH}"
+export PATH="/opt/venv/bin:${PATH}"
+
+# If you use Alembic migrations in production, uncomment the line below:
+# alembic upgrade head
+
+# Handoff process execution cleanly over to the patched Python engine
+echo "🚀 Bootstrapping application via start.py..."
+exec python start.py

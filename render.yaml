@@ -5,10 +5,14 @@ services:
   - type: web
     name: jobradar-backend
     runtime: docker
-    dockerfilePath: backend/Dockerfile.prod
-    dockerContext: backend
     plan: starter
     region: oregon
+    
+    # Correct Monorepo Pathing:
+    rootDir: backend
+    dockerContext: .
+    dockerfilePath: Dockerfile.prod
+
     envVars:
       - key: DEBUG
         value: "False"
@@ -57,10 +61,14 @@ services:
   - type: web
     name: jobradar-frontend
     runtime: docker
-    dockerfilePath: frontend/Dockerfile
-    dockerContext: frontend
     plan: starter
     region: oregon
+    
+    # Correct Monorepo Pathing:
+    rootDir: frontend
+    dockerContext: .
+    dockerfilePath: Dockerfile
+
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://jobradar-backend.onrender.com
@@ -72,4 +80,3 @@ databases:
   - name: jobradar-db
     region: oregon
     plan: starter
-    # postgresVersion removed - Render uses latest stable version

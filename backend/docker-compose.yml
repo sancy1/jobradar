@@ -1,7 +1,9 @@
 # jobradar/backend/docker-compose.yml
+version: "3.8"
+
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine # Switched to alpine to keep the local footprint tiny
     container_name: jobradar_postgres
     environment:
       POSTGRES_USER: postgres
@@ -12,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d jobradar"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -38,12 +40,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/jobradar
-      REDIS_URL: redis://redis:6379/0
-      DEBUG: "True"
-      REDIS_HOST: ${REDIS_HOST:-}
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
-      LOGTAIL_SOURCE_TOKEN: ${LOGTAIL_SOURCE_TOKEN:-}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/jobradar
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - REDIS_HOST=${REDIS_HOST:-}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - LOGTAIL_SOURCE_TOKEN=${LOGTAIL_SOURCE_TOKEN:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,6 +53,8 @@ services:
         condition: service_healthy
     volumes:
       - .:/app  # Maps jobradar/backend straight to the running container app home
+      # Anonymous volume prevents local system cache errors from breaking container Python
+      - /app/__pycache__
     restart: unless-stopped
 
 volumes:
