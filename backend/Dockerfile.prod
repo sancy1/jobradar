@@ -20,7 +20,8 @@ FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH="/home/jobradar/.local/bin:${PATH}"
+    PATH="/home/jobradar/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    PYTHONPATH="/app:$PYTHONPATH"
 
 WORKDIR /app
 
@@ -49,6 +50,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 EXPOSE 8000
 
-# ✅ FIX: Use start.sh to bypass Render's command injection
-# Render will execute this script which handles the Python path correctly
-CMD ["./start.sh"]
+# Run uvicorn directly without shell script to avoid PATH issues
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]

@@ -23,7 +23,8 @@ FROM python:3.11-slim
 # Prevent Python from writing .pyc files and force unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH="/home/jobradar/.local/bin:${PATH}"
+    PATH="/home/jobradar/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    PYTHONPATH="/app:$PYTHONPATH"
 
 WORKDIR /app
 
