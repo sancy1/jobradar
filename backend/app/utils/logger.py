@@ -1,3 +1,132 @@
+# # File 18: jobradar/backend/app/utils/logger.py
+# """
+# Logging Utility
+# Sets up structured loguru logging and intercepts native logging statements
+# """
+
+# import sys
+# import logging
+# from loguru import logger
+
+# from app.config import settings
+
+
+# class InterceptHandler(logging.Handler):
+#     """
+#     Core Interceptor to reroute third-party library standard logging statements 
+#     (such as Uvicorn, SQLAlchemy, Authlib) directly through loguru stream sinks.
+#     """
+#     def emit(self, record):
+#         try:
+#             level = logger.level(record.levelname).name
+#         except ValueError:
+#             level = record.levelno
+
+#         frame, depth = logging.currentframe(), 2
+#         while frame.f_code.co_filename == logging.__file__:
+#             frame = frame.f_back
+#             depth += 1
+
+#         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+
+# def setup_logging() -> None:
+#     """
+#     Configure loguru engines for application deployment
+#     """
+#     # Remove default base logging outputs
+#     logger.remove()
+    
+#     # Route console sink with tailored coloring
+#     logger.add(
+#         sys.stdout,
+#         format=(
+#             "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+#             "<level>{level: <8}</level> | "
+#             "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+#             "<level>{message}</level>"
+#         ),
+#         level="DEBUG" if settings.DEBUG else "INFO",
+#         colorize=True,
+#         backtrace=settings.DEBUG,
+#         diagnose=settings.DEBUG,
+#     )
+    
+#     # Establish local daily error log rotators
+#     logger.add(
+#         "logs/error_{time:YYYY-MM-DD}.log",
+#         format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+#         level="ERROR",
+#         rotation="1 day",
+#         retention="30 days",
+#         compression="zip",
+#     )
+    
+#     # Establish verbose application tracking during debugging phases
+#     if settings.DEBUG:
+#         logger.add(
+#             "logs/app_{time:YYYY-MM-DD}.log",
+#             format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}",
+#             level="DEBUG",
+#             rotation="1 day",
+#             retention="14 days",
+#             compression="zip",
+#         )
+    
+#     # CRITICAL FIX: Intercept standard Python logging channels to prevent stream duplicates or lost entries
+#     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+    
+#     # Reroute explicit module definitions down into the handler hook
+#     for logger_name in ("uvicorn", "uvicorn.access", "uvicorn.error", "sqlalchemy.engine", "authlib"):
+#         mod_logger = logging.getLogger(logger_name)
+#         mod_logger.handlers = [InterceptHandler()]
+#         mod_logger.propagate = False
+        
+#     logger.info(f"📋 Logging pipeline initialized (DEBUG={settings.DEBUG})")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# jobradar/backend/app/utils/logger.py
 """
 Logging Utility
 Sets up structured loguru logging, intercepts native logging statements,
@@ -7,7 +136,8 @@ and pipes real-time production records securely into BetterStack Logtail.
 import sys
 import logging
 from loguru import logger
-from logtail2 import LogtailHandler
+from logtail import LogtailHandler
+
 from app.config import settings
 
 
