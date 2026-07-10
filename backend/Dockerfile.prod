@@ -29,13 +29,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Create user first to set up the home directory path layout
 RUN useradd -m -u 1000 jobradar
 
-# Pull clean compiled production site packages from builder context stage
+# Copy installed packages from builder
 COPY --from=builder /root/.local /home/jobradar/.local
 COPY . .
 
-# Setup blank placeholder to handle safe system access routes
+# Setup logs directory
 RUN mkdir -p /app/logs && chown -R jobradar:jobradar /app
 USER jobradar
 
@@ -45,5 +46,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 EXPOSE 8000
 
-# Start application overriding automated native server console handler overrides
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "/dev/null"]
+# ✅ FIXED: Removed --log-config /dev/null
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
