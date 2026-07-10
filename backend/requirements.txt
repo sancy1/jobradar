@@ -24,7 +24,6 @@ pandas==2.1.4
 numpy==1.26.2
 requests==2.31.0
 email-validator==2.1.0
-logtail>=0.2.1
 watchfiles>=1.2.0
 billiard>=4.2.0
 vine>=5.1.0
