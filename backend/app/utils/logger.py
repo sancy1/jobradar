@@ -7,8 +7,7 @@ and pipes real-time production records securely into BetterStack Logtail.
 import sys
 import logging
 from loguru import logger
-from logtail import LogtailHandler
-
+from logtail2 import LogtailHandler
 from app.config import settings
 
 
