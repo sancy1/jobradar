@@ -46,6 +46,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 EXPOSE 8000
 
-# ✅ FIX: Shell-form CMD drops Render's injected flags (--log-config /dev/null)
-# Render CANNOT inject arguments into shell-form CMD
-CMD uvicorn app.main:app --host 0.0.0.0 --port 8000
+# ✅ FIX: Use Python to run uvicorn with log_config=None to prevent /dev/null crash
+CMD ["python", "-c", "import sys; sys.path.insert(0, '/app'); from app.main import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=8000, log_config=None, log_level='info')"]
