@@ -32,6 +32,10 @@ from app.main import app
 import uvicorn
 
 if __name__ == "__main__":
+    print("🚀 Starting JobRadar with start.py...", file=sys.stdout)
+    print(f"📂 Working directory: {os.getcwd()}", file=sys.stdout)
+    print(f"📂 Python path: {sys.path[:3]}", file=sys.stdout)
+    
     uvicorn.run(
         app,
         host="0.0.0.0",
