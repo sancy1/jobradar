@@ -36,8 +36,11 @@ RUN useradd -m -u 1000 jobradar
 COPY --from=builder /root/.local /home/jobradar/.local
 COPY . .
 
-# Setup logs directory
-RUN mkdir -p /app/logs && chown -R jobradar:jobradar /app
+# Setup logs directory and make start.sh executable
+RUN mkdir -p /app/logs && \
+    chmod +x /app/start.sh && \
+    chown -R jobradar:jobradar /app /home/jobradar/.local
+
 USER jobradar
 
 # Health check matching Render cloud native lifecycle structures

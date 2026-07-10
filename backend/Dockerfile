@@ -42,8 +42,11 @@ COPY --from=builder /root/.local /home/jobradar/.local
 # Copy application source file workspace trees into the container
 COPY . .
 
-# Provision fallback logs directory and transfer environment ownership privileges cleanly
-RUN mkdir -p /app/logs && chown -R jobradar:jobradar /app
+# Provision fallback logs directory, make start.sh executable, and set ownership
+RUN mkdir -p /app/logs && \
+    chmod +x /app/start.sh && \
+    chown -R jobradar:jobradar /app /home/jobradar/.local
+
 USER jobradar
 
 # Health check pipeline verifying runtime API state

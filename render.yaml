@@ -57,7 +57,7 @@ services:
   - type: web
     name: jobradar-frontend
     runtime: docker
-    dockerfilePath: frontend/Dockerfile.prod
+    dockerfilePath: frontend/Dockerfile
     dockerContext: frontend
     plan: starter
     region: oregon
