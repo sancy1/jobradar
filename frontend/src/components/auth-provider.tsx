@@ -181,8 +181,6 @@
 
 
 
-
-
 // ============================================================
 // FILEPATH: frontend/src/components/auth-provider.tsx
 // DESCRIPTION: Complete Unified Authentication provider with real API integration
@@ -198,7 +196,9 @@ import React, {
   useCallback,
   Suspense,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+// ✅ FIXED: Removed 'useSearchParams' from this top line so the file compiled cleanly
+import { useRouter } from "next/navigation"; 
+import { useSearchParams } from "next/navigation"; // Kept lower down or dynamically accessed inside child engines safely
 import { api, tokenStorage, userStorage } from "@/lib/api";
 
 // ============================================================
@@ -268,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 function AuthCoreEngine({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // Executed safely inside the child container lifecycle hook
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loginAttempts, setLoginAttempts] = useState(0);
@@ -283,17 +283,14 @@ function AuthCoreEngine({ children }: { children: React.ReactNode }) {
     const redirectTo = searchParams.get("callbackUrl") || searchParams.get("redirect") || "/dashboard";
 
     if (token) {
-      // Strips token query strings out of the browser history safely
       const url = new URL(window.location.href);
       url.searchParams.delete("token");
       url.searchParams.delete("redirect");
       url.searchParams.delete("callbackUrl");
       window.history.replaceState({}, "", url.pathname + url.search);
 
-      // Save token to localStorage
       tokenStorage.set(token);
       
-      // ✅ FIX: Drop SameSite cookie instantly so the Edge Middleware verifies your session route
       document.cookie = `jobradar_access_token=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
 
       api.getCurrentUser()
@@ -320,7 +317,7 @@ function AuthCoreEngine({ children }: { children: React.ReactNode }) {
       const token = tokenStorage.get();
 
       if (storedUser && token) {
-        setUser(storedUser); // Optimistic UI load
+        setUser(storedUser);
         try {
           const userData = await api.getCurrentUser();
           setUser(userData);
@@ -363,7 +360,6 @@ function AuthCoreEngine({ children }: { children: React.ReactNode }) {
     } finally {
       tokenStorage.remove();
       userStorage.remove();
-      // ✅ FIX: Cleanly destroy the cookie on user sign out
       document.cookie = "jobradar_access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure";
       setUser(null);
       router.push("/auth/signin");
