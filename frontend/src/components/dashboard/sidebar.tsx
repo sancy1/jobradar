@@ -475,7 +475,7 @@ export function Sidebar() {
             )}
           >
             <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={user?.avatar_url} />
+              <AvatarImage src={user?.profile_picture} />
               <AvatarFallback className="bg-gradient-to-r from-indigo-500 to-cyan-500 text-white text-xs font-medium">
                 {user?.name?.charAt(0) || "U"}
               </AvatarFallback>

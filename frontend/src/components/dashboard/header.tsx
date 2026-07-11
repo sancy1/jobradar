@@ -155,7 +155,7 @@ export function Header({ onFilterToggle }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 px-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.avatar_url} />
+                <AvatarImage src={user?.profile_picture} />
                 <AvatarFallback className="bg-gradient-to-r from-indigo-500 to-cyan-500 text-white text-sm font-medium">
                   {user?.name?.charAt(0) || "U"}
                 </AvatarFallback>

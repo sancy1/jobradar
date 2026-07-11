@@ -211,7 +211,7 @@ export default function SettingsPage() {
           >
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
               <Avatar className="h-20 w-20 border-2 border-slate-200 dark:border-slate-700">
-                <AvatarImage src={user?.avatar_url} alt={user?.name} />
+                <AvatarImage src={user?.profile_picture} alt={user?.name} />
                 <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-cyan-500 text-white text-xl font-semibold">
                   {user?.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
