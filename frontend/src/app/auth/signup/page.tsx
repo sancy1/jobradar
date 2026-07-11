@@ -1,3 +1,8 @@
+// ============================================================
+// FILEPATH: frontend/src/app/auth/signup/page.tsx
+// DESCRIPTION: Sign-up page - uses same OAuth flow as sign-in
+// ============================================================
+
 "use client";
 
 import { useState } from "react";
@@ -24,7 +29,8 @@ import { toast } from "sonner";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signUpWithGoogle, signUpWithGitHub, isLoading } = useAuth();
+  // ✅ FIX: Use signInWithGoogle/GitHub - OAuth handles both sign-in and sign-up
+  const { signInWithGoogle, signInWithGitHub, isLoading } = useAuth();
   const [loadingProvider, setLoadingProvider] = useState<"google" | "github" | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -39,7 +45,8 @@ export default function SignUpPage() {
 
     setLoadingProvider("google");
     try {
-      await signUpWithGoogle();
+      // ✅ FIX: Use signInWithGoogle (same OAuth flow)
+      signInWithGoogle();
       setShowSuccess(true);
       toast.success("Account created!", {
         description: "Welcome to JobRadar! Your account has been created",
@@ -66,7 +73,8 @@ export default function SignUpPage() {
 
     setLoadingProvider("github");
     try {
-      await signUpWithGitHub();
+      // ✅ FIX: Use signInWithGitHub (same OAuth flow)
+      signInWithGitHub();
       setShowSuccess(true);
       toast.success("Account created!", {
         description: "Welcome to JobRadar! Your account has been created",
@@ -104,10 +112,8 @@ export default function SignUpPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden bg-slate-950">
-      {/* Background Slider */}
       <BackgroundSlider />
 
-      {/* Top Bar */}
       <header className="relative z-20 w-full px-6 py-4 flex items-center justify-between">
         <div className="lg:hidden">
           <RadarLogo size="sm" />
@@ -116,17 +122,13 @@ export default function SignUpPage() {
         <ThemeToggle />
       </header>
 
-      {/* Main Content - Split Layout */}
       <main className="relative z-10 flex-1 flex items-stretch">
-        {/* Left: Marketing Section (hidden on mobile) */}
         <div className="hidden lg:flex lg:w-3/5 xl:w-3/5">
           <AuthMarketing />
         </div>
 
-        {/* Right: Sign Up Card */}
         <div className="flex-1 flex items-center justify-center px-4 py-8 lg:px-8 -mt-8">
           <div className="w-full max-w-md">
-            {/* Mobile heading */}
             <div className="lg:hidden text-center mb-6">
               <h1 className="text-2xl font-bold text-white">
                 Find your dream job with{" "}
@@ -139,13 +141,8 @@ export default function SignUpPage() {
               </p>
             </div>
 
-            {/* Sign Up Card */}
             <div className="rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl border border-white/20 dark:border-slate-700/50 overflow-hidden">
-              {/* Card Header */}
               <div className="px-8 pt-8 pb-2 text-center">
-                {/* <div className="mx-auto mb-4 h-14 w-14 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                  <Sparkles className="h-7 w-7 text-white" />
-                </div> */}
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                   Create your account
                 </h2>
@@ -154,9 +151,7 @@ export default function SignUpPage() {
                 </p>
               </div>
 
-              {/* Card Body */}
               <div className="px-8 py-6 space-y-4">
-                {/* Info Box */}
                 <div className="rounded-lg border border-cyan-200 dark:border-cyan-900 bg-cyan-50 dark:bg-cyan-950/20 p-4">
                   <div className="flex gap-3">
                     <div className="mt-0.5">
@@ -170,7 +165,6 @@ export default function SignUpPage() {
                   </div>
                 </div>
 
-                {/* Terms Checkbox */}
                 <div className="flex items-start space-x-3 py-1">
                   <Checkbox
                     id="terms"
@@ -271,7 +265,6 @@ export default function SignUpPage() {
                 </div>
               </div>
 
-              {/* Card Footer */}
               <div className="px-8 pb-6 pt-2">
                 <div className="text-xs text-slate-500 dark:text-slate-500 text-center">
                   <span className="flex items-center justify-center gap-4">
@@ -296,7 +289,6 @@ export default function SignUpPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="relative z-10 w-full px-6 py-4 text-center text-xs text-slate-400">
         JobRadar — Start your job discovery journey
       </footer>
