@@ -1,3 +1,6 @@
+
+// src/components/dashboard/filter-bar.tsx
+
 "use client";
 
 import { Filter, X } from "lucide-react";
